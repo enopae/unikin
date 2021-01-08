@@ -1,0 +1,12 @@
+# Windows
+Thumbs.db
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Files from testing
+*.dat
+*.log
+*.dens

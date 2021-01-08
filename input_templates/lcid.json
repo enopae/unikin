@@ -1,0 +1,29 @@
+{
+  "method": "lcid",
+  "write": ["rate"],
+  "name": "dummy",
+
+  "dof": 30,
+  "rotors": 0,
+  "v_eff": 1000.0,
+  "alpha_prime": 6000.0,
+  "min_alpha": 5000.0,
+  "max_alpha": 6500.0,
+  "e0": "25,kcal",
+  "emax": 50010,
+  "egrain": 10,
+
+  "opt": false,
+  "e_guess": 50.0,
+  "e_win": 45.0,
+  "ref_file": null,
+  "verbose": false,
+
+  "cid": false,
+  "mass": null,
+  "gas": "Ar",
+  "n_ions": 1000,
+  "fwhm": 1.5,
+  "tau": 6e-05,
+  "temp": 313.15
+}

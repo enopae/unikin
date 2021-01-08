@@ -1,0 +1,29 @@
+{
+  "method": "rac",
+  "write": ["rate"],
+  "name": "dummy",
+
+  "intype": "txt",
+  "reactant_file": "dos.dat",
+  "ts_file": ["ts_sos.dat"],
+  "e0": "25,kcal",
+  "sym": 1,
+  "B": null,
+  "B_ts": null,
+  "emax": 50010,
+  "egrain": 10,
+
+  "opt": false,
+  "e_guess": 50.0,
+  "e_win": 45.0,
+  "ref_file": null,
+  "verbose": false,
+
+  "cid": false,
+  "mass": null,
+  "gas": "Ar",
+  "n_ions": 1000,
+  "fwhm": 1.5,
+  "tau": 6e-05,
+  "temp": 313.15
+}

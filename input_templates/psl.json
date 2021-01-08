@@ -1,0 +1,34 @@
+{
+  "method": "psl",
+  "write": ["rate"],
+  "name": "dummy",
+
+  "intype": "txt",
+  "reactant_file": "dos.dat",
+  "ts_file": [
+    "rot_sos1.dat",
+    "rot_dos2.dat",
+    "ts_dos1.dat",
+    "ts_dos2.dat"
+  ],
+  "e0": "25,kcal",
+  "B": null,
+  "B_ts": null,
+  "sym": 1,
+  "emax": 50010,
+  "egrain": 10,
+
+  "opt": false,
+  "e_guess": 50.0,
+  "e_win": 45.0,
+  "ref_file": null,
+  "verbose": false,
+
+  "cid": false,
+  "mass": null,
+  "gas": "Ar",
+  "n_ions": 1000,
+  "fwhm": 1.5,
+  "tau": 6e-05,
+  "temp": 313.15
+}
