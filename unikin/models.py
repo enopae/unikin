@@ -37,7 +37,7 @@ class LCID:
     """Calculate L-CID rates
     """
 
-    # Fitted parameters (Narancic 2007)
+    # Fitted parameters (from https://doi.org/10.1021/jp072092l)
     beta_slope = 0.5190
     alpha_slope = 0.1593
     alpha_intercept = 1.546
@@ -69,7 +69,7 @@ class LCID:
 
     def calc_dos(self, ene, ts = False):
         """Density of States calculator
-        
+        Equations 9 and 16 in the SI of https://doi.org/10.1021/jp072092l
         Arguments:
             ene {float or np.array} -- energy to eval DOS at (in cm-1)
             ts {bool} -- True for calculating TS DOS
@@ -102,6 +102,7 @@ class LCID:
     
     def calc_param(self):
         """Calculates the LCID parameters
+        Based on the SI of https://doi.org/10.1021/jp072092l
         """
         self.alpha = self.v_eff * np.exp(self.alpha_intercept - self.alpha_slope * self.rotors)
         self.beta = np.sqrt(self.dof / (self.beta_slope * self.v_eff))
@@ -371,6 +372,7 @@ class SSACM(Pst):
 
     def calc_frigid(self):
         """Calculate the rigidity factor
+        Equations S1 and S2 in http://dx.doi.org/10.1021/acs.jpca.1c00183
         """
         if self.disstype == 'ion-atom':
             self.f_rigid = np.exp(-self.energies/self.ssacm_c)

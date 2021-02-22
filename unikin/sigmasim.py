@@ -47,8 +47,10 @@ class SigmaSim():
             gas (str, optional): Collision gas (Ne, Ar or Xe). Defaults to 'Ar'.
             fwhm (float, optional): KED FWHM in eV (from the experiment). Defaults to 1.5.
             temp (int, optional): Temperature in K. Defaults to 313.15.
-            tau ([type], optional): Residence time of the ions in s. Defaults to 6e-5.
+            tau (float, optional): Residence time of the ions in s. Defaults to 6e-5.
             n_ions (int, optional): Number of ions in the simulation. Defaults to 1000.
+            emax (float, optional): Maximum energy of the simulation (in cm-1). Defaults to 20000.
+            egrain (float, optional): Energy grain in the simulation (in cm-1). Defaults to 10.
         """
         self.n_ions = n_ions
         self.tau = tau
@@ -105,7 +107,7 @@ class SigmaSim():
         p_kerd = self.gen_p_kerd(p_e, dos)
         p_e -= p_kerd
         ###
-        # Average sigma calculation
+        # Average sigma calculation (Equation S14 in http://dx.doi.org/10.1021/acs.jpca.1c00183)
         ###
         # Get the indices and scale negative ones to 0 and the ones above max index to the max index value
         sigma_idxs = ((p_e)/self.egrain).astype('i')
@@ -129,6 +131,7 @@ class SigmaSim():
     def gen_p_boltz(self, dos):
         """
         Generate Boltzmann distribution of vibrational energies
+        Equation S9 in http://dx.doi.org/10.1021/acs.jpca.1c00183 
         """
         # Calculate distribution on the energy grid and normalize
         boltz_ref = dos * np.exp(-self.energies / self.kBT)
@@ -140,7 +143,8 @@ class SigmaSim():
 
     def gen_p_ked_dopp(self):
         """Calculate KED
-           Using random.choice instead of random.normal to avoid dealing with negative values.
+           Related to equation S10 in http://dx.doi.org/10.1021/acs.jpca.1c00183 
+           Note: Using random.choice instead of random.normal to avoid dealing with negative values.
            random.normal gives a shorter code, but cannot easily avoid negative values at low E
         """
         # Calculate normal distributions on the energy grid (shifted by the lab frame kinetic energy)
@@ -163,11 +167,11 @@ class SigmaSim():
         Args:
             p_e (np array): energy distribution
         """
-        # Calculate triangular distributions for the b parameter
+        # Calculate triangular distributions for the b parameter (equation S12 in http://dx.doi.org/10.1021/acs.jpca.1c00183)
         b_dist = np.random.triangular(left=0, mode=1, right=1, size = p_e.shape)
-        # Convert b_dist into b values
+        # Convert b_dist into b values (equation S6 in the SI of https://doi.org/10.1021/jp072092l)
         p_b = b_dist * (self.impact_constant / p_e) ** 0.25
-        # Convert p_e from E_coll to E_loc
+        # Convert p_e from E_coll to E_loc (equation S11 in http://dx.doi.org/10.1021/acs.jpca.1c00183)
         p_e *= (1 - b_dist ** 2)
         return p_e, p_b
 
@@ -185,7 +189,7 @@ class SigmaSim():
         gas_dos = statecount.beyer_swinehart(gas_freq, self.egrain, max(self.energies), count='dos')
         comb_dos = np.convolve(dos, gas_dos)[:len(dos)]
         comb_dos[1:] *= self.egrain
-        # Calculate KERD distribution on the energy grid
+        # Calculate KERD distribution on the energy grid (equation S13 in http://dx.doi.org/10.1021/acs.jpca.1c00183)
         kerd_ref = np.sqrt(self.energies) * comb_dos[::-1]
         kerd_ref /= np.sum(kerd_ref)
         p_kerd = np.random.choice(self.energies, p = kerd_ref, size = p_e.shape)

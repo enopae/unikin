@@ -29,6 +29,7 @@ from . import constants, misc
 @export
 def rrkm_rate(sos_ts, dos, s = 1):
     """Calculate the RRKM rate
+    Equation 1 in http://dx.doi.org/10.1021/acs.jpca.1c00183 
 
     Arguments:
         sos_ts {array} -- Sum of States at the TS
@@ -48,7 +49,8 @@ def rrkm_rate(sos_ts, dos, s = 1):
 
 #@timing
 def j_averaged_rate(model, e0, sos_in, E_J, E_ts_J, g_J):
-    """Calculate the J-averaged RRKM rate (Eq 5 in the paper)
+    """Calculate the J-averaged RRKM rate
+    Equation S4 in http://dx.doi.org/10.1021/acs.jpca.1c00183 
         (this function is not really well-suited for using separately
         outside the methods.py module)
 

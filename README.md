@@ -1,6 +1,6 @@
 # UniKin
 
-Python code for unimolecular kinetics by statistical rate theory. Available models include: RAC-RRKM, (microcanonical) VTST, PSL, SSACM, and L-CID. All these models can be used for either microcanonical rate or CID reaction cross-section calculations.
+Python code for unimolecular kinetics by statistical rate theory. Available models include: RAC-RRKM, (microcanonical) VTST, PSL, SSACM, and L-CID. All these models can be used for either microcanonical rate or CID reaction cross-section calculations. The code is briefly introduced in the SI of http://dx.doi.org/10.1021/acs.jpca.1c00183 (relevant equations in that paper are also mentioned in comments in the source code).
 
 ## Basic usage
 Call python on the `unikin.py` code with `-h` flag to see the options. 
@@ -114,4 +114,4 @@ L-CID requires no data files for DOS and SOS, therefore `-r` and `-t` flags are 
 ### Misc
 The code does not currently include error and exception handling; the user might experience hard-to-trace Python errors if a mistake in the usage is made.
 
-SSACM and L-CID fitting can be parallelized by setting a different number of workers for differential evolution in the source code of `opt.py`.
+The data arrays can consume a lot of RAM if high-energy rates with a fine energy grain are calculated (especially with VTST).
