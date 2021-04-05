@@ -24,7 +24,9 @@ https://gitlab.ethz.ch/paenurke/unikin
 # http://hbcponline.com/faces/documents/01_01/01_01_0001.xhtml
 # http://hbcponline.com/faces/documents/01_10/01_10_0001.xhtml 
 # (accessed August 2020)
-
+# http://hbcponline.com/faces/documents/10_04/10_04_0001.xhtml
+# http://hbcponline.com/faces/documents/04_01/04_01_0001.xhtml
+# (accessed March 2021)
 
 h_si = 6.62607015e-34  # Planck's constant in J*s (SI units)
 nA = 6.02214076e23 # Avogadro's constant
@@ -40,13 +42,13 @@ h = h_si * (kj2cm / 1000) * nA # Planck's constant in cm-1 * s
 # convert permittivity to e^2/cm-1
 vac_permittivity = 8.8541878128e-12 / 1.602176634e-19 / 100 / ev2cm
 # polarizabilities (in angstrom^3)
-polarizability = {'Ne': 0.4,
-                  'Ar': 1.6,
-                  'Xe': 4.0}
+polarizability = {'Ne': 0.39432,
+                  'Ar': 1.6411,
+                  'Xe': 4.044}
 polarizability = {i:polarizability[i] * 1e-24 for i in polarizability} # convert to cm^3
 # molar masses
-gas_molmass = {'Ne': 20,
-               'Ar': 40,
-               'Xe': 131}
+gas_molmass = {'Ne': 20.180,
+               'Ar': 39.948,
+               'Xe': 131.293}
 kB_si = 1.380649e-23 # Boltzmann constant in J/K (SI units)
 kB = kB_si * (kj2cm / 1000) * nA # Boltzmann constant in cm-1/K
