@@ -90,10 +90,6 @@ class SigmaSim():
         idxs = misc.take_closest_np(rate_calculator.energies, self.energies)
         dos = np.nan_to_num(rate_calculator.dos[idxs])
         rate = np.nan_to_num(rate_calculator.rate[idxs])
-        # Calculate the Boltzmann distribution
-        p_boltz = self.gen_p_boltz(dos)
-        # Calculate sigma lookup array
-        rate_sigmoid = 1 - np.exp(-rate*self.tau)
         ###
         # Simulate CID
         ###
@@ -102,43 +98,36 @@ class SigmaSim():
         # Impact parameter
         p_e, p_b = self.gen_impact_param(p_e)
         # Convolution with Boltzmann distribution
-        p_e += np.tile(p_boltz, (p_e.shape[0],1))
+        p_e = self.gen_p_boltz(p_e, dos)
         # Deconvolution with KERD
-        p_kerd = self.gen_p_kerd(p_e, dos)
-        p_e -= p_kerd
+        p_e = self.gen_p_kerd(p_e, dos)
         ###
         # Average sigma calculation (Equation S14 in http://dx.doi.org/10.1021/acs.jpca.1c00183)
         ###
-        # Get the indices and scale negative ones to 0 and the ones above max index to the max index value
-        sigma_idxs = ((p_e)/self.egrain).astype('i')
-        sigma_idxs[sigma_idxs < 0] = 0
-        sigma_idxs[sigma_idxs > len(rate_sigmoid)-1] = len(rate_sigmoid)-1
-        # Get the rate curve based on p_e (relies on rate_sigmoid corresponding to self.energies)
-        sigma = rate_sigmoid[sigma_idxs]
-        # Multiply by pi and impact parameter
-        sigma *= np.pi * p_b ** 2
+        # Calculate the reaction probability lookup array
+        rxn_prob = 1 - np.exp(-rate*self.tau)
+        # Get the energy indices and scale negative ones to 0 and the ones above max index to the max index value
+        e_idxs = ((p_e)/self.egrain).astype('i')
+        e_idxs[e_idxs < 0] = 0
+        e_idxs[e_idxs > len(rxn_prob)-1] = len(rxn_prob)-1
+        # Get the reaction probability for each energy in p_e 
+        # (relies on rxn_prob corresponding to self.energies)
+        p_rxn = rxn_prob[e_idxs]
+        # Calculate the collision cross section for each impact parameter in p_b
+        p_coll = np.pi * p_b ** 2
+        # Multiply p_rxn and p_coll to get the reaction cross section
+        sigma = p_coll * p_rxn
         # Average for each energy and rescale until emax
         sigma_mean = np.mean(sigma, axis = 1)[:int(len(self.energies)/self.emax_scale)]
         energies = self.energies[:len(sigma_mean)]
         # Apply Savitzky-Golay smoothing
         sigma_mean = savgol_filter(sigma_mean,self.smooth_win_len,1)
         return sigma_mean, energies
-    
+
+
     """
     Distributions
     """
-    
-    def gen_p_boltz(self, dos):
-        """
-        Generate Boltzmann distribution of vibrational energies
-        Equation S9 in http://dx.doi.org/10.1021/acs.jpca.1c00183 
-        """
-        # Calculate distribution on the energy grid and normalize
-        boltz_ref = dos * np.exp(-self.energies / self.kBT)
-        boltz_ref /= sum(boltz_ref)
-        # Generate a random energy according to boltz_ref probability for each ion
-        p_boltz = np.random.choice(self.energies, p = boltz_ref, size = self.n_ions)
-        return p_boltz
 
 
     def gen_p_ked_dopp(self):
@@ -162,7 +151,7 @@ class SigmaSim():
 
 
     def gen_impact_param(self, p_e):
-        """Calculate impact parameter
+        """Calculate impact parameter and kinetic energy transfer
 
         Args:
             p_e (np array): energy distribution
@@ -176,8 +165,21 @@ class SigmaSim():
         return p_e, p_b
 
 
+    def gen_p_boltz(self, p_e, dos):
+        """
+        Convolute p_e with Boltzmann distribution of vibrational energies
+        Equation S9 in http://dx.doi.org/10.1021/acs.jpca.1c00183 
+        """
+        # Calculate distribution on the energy grid and normalize
+        boltz_ref = dos * np.exp(-self.energies / self.kBT)
+        boltz_ref /= sum(boltz_ref)
+        # Generate a random energy according to boltz_ref probability for each ion
+        p_boltz = np.random.choice(self.energies, p = boltz_ref, size = p_e.shape)
+        return p_e + p_boltz
+
+
     def gen_p_kerd(self, p_e, dos):
-        """Calculate KERD
+        """Convolute p_e with KERD
 
         Args:
             p_e (np array): energy distribution
@@ -193,4 +195,4 @@ class SigmaSim():
         kerd_ref = np.sqrt(self.energies) * comb_dos[::-1]
         kerd_ref /= np.sum(kerd_ref)
         p_kerd = np.random.choice(self.energies, p = kerd_ref, size = p_e.shape)
-        return p_kerd
+        return p_e - p_kerd
